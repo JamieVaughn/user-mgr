@@ -34,12 +34,16 @@ function getUser(id){
     return fetch(`https://jsonplaceholder.typicode.com/users/${id}`)
     .then(resp => resp.json())
     .then(data => {
-		let modifiedUser = User(data)
-		myUsers.push(modifiedUser)
-		addUserToDash(modifiedUser)
-        return modifiedUser
+		console.log(validateUser(data.id))
+		if(data && !validateUser(data.id).length){
+			let modifiedUser = User(data)
+			myUsers.push(modifiedUser)
+			addUserToDash(modifiedUser)
+			return modifiedUser
+		}
+		throw new Error(validateUser(data.id) ? 'Duplicate User' : 'No user found!')
     })
-	.catch(error => error)
+	.catch(error => console.log(error))
 	.finally(() => {
 		console.log('finished fetching user')
 	})
@@ -85,10 +89,14 @@ function addUserToDash(user){
 				</div>
 			</div>
 			<span>Admin: ${admin} </span>
-			<span> toggle Admin: <input type='checkbox' onchange='setAdmin(${id})' ${admin ? "checked" : ""}'></span>
+			<span> toggle Admin: <input type='checkbox' onchange='setAdmin(${id})' "${admin ? 'checked' : ''}"></span>
 			<button onclick='hideUser(${id})'>Hide User</button>
 		</article>
 		`
+}
+
+function validateUser(id){
+	return myUsers.filter(user => user.id === id)
 }
 
 
@@ -112,8 +120,11 @@ function renderAllUsers(){
 }
 
 function setAdmin(id) {
-	myUsers.filter(user => user.id === id).map(user => user.admin = true)
-	renderAllUsers()
+	return new Promise(function(resolve, reject) {
+		myUsers.filter(user => user.id === id).map(user => user.admin = true);
+		resolve(true)
+	  })
+	  .then(() => renderAllUsers());
 }
 function checkAdmin(bool){
 	return bool ? "checked" : ""
