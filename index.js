@@ -16,122 +16,120 @@ Bonus 2: Add a button that changes the user to "Admin" status and gives a visual
 Extra Bonus: Use promises, keyframes and web-animations library to make the users "card" animated onto the page nicely and gradually 
 */
 
+const hideUser = (id) => {
+	document.querySelector('[data-id="'+id+'"]').classList.add('hidden')
+	myUsers.filter(user => user.id == id).map(user => user.hidden = true)
+}
+
+document.querySelector('form button').addEventListener('click', function(e) {
+	e.preventDefault()
+	let userId = document.querySelector('#user').value
+	getUser(userId)
+})
+
 let myUsers = [];
 
-function getUsers(id){
+function getUser(id){
     // fetch a user with given id
     return fetch(`https://jsonplaceholder.typicode.com/users/${id}`)
     .then(resp => resp.json())
     .then(data => {
-        console.log(data)
-        return data
+		let modifiedUser = User(data)
+		myUsers.push(modifiedUser)
+		addUserToDash(modifiedUser)
+        return modifiedUser
     })
-    .catch(error => error))
+	.catch(error => error)
+	.finally(() => {
+		console.log('finished fetching user')
+	})
 }
 
-function User(id) {
-    // the constructor
-    return getUsers(id)
+function getUserAndPosts(id) {
+	const user = fetch(`https://jsonplaceholder.typicode.com/users/${id}`).then(resp => resp.json())
+	const posts = fetch(`https://jsonplaceholder.typicode.com/posts?userId=${id}`).then(resp => resp.json())
+	return Promise.all([user, posts])
+	.then(resp => {
+		console.log(resp)
+		let posts = resp[1].map(i => i.title)
+		let user = resp.posts = posts
+		return user
+	})
+	.then(data => {
+		console.log(data)
+	})
+}
+
+function User(user) {
+	// the data transformer
+	let modifiedUser = user
+	modifiedUser.admin = false
+	modifiedUser.hidden = false
+	console.log(modifiedUser)
+    return modifiedUser;
 }
 
 function addUserToDash(user){
-    // add user to DOM
-    myUsers.push(user)
+	// add user to DOM
+	console.log(user, myUsers)
+    // let user = myUsers[myUsers.length - 1]
+	let { id, name, address, email, admin, hidden } = user
+	output.innerHTML += `
+		<article data-id=${id} class=${hidden ? 'hidden' : admin ? 'admin': ''}>
+			<div class='flex'>
+				<img src='https://api.adorable.io/avatars/125/${name}' alt='picture of ${name}'>
+				<div class='info'>
+					<h1>${name}</h1>
+					<div>${email}</div>
+					<div>${address.suite} ${address.street} ${address.city}</div>
+				</div>
+			</div>
+			<span>Admin: ${admin} </span>
+			<span> toggle Admin: <input type='checkbox' onchange='setAdmin(${id})' ${admin ? "checked" : ""}'></span>
+			<button onclick='hideUser(${id})'>Hide User</button>
+		</article>
+		`
 }
 
 
-function Book(title, author, numOfPages, read) {
-	this.title = title;
-	this.author = author;
-	this.numOfPages = numOfPages;
-	this.read = read;
+function addUser(id, name, address, email) {
+	this.id = id;
+	this.name = name;
+	this.address = address;
+	this.email = email;
 
 	this.info = () => {
-		return `${title} by ${author}, ${numOfPages} pages`;
+		return `${id}: ${name} lives at ${address} and can be contacted at ${email}`;
 	}
 }
 const output = document.querySelector('.users')
-function render(){
-    
+
+function renderAllUsers(){
+	output.innerHTML = ''
+	myUsers.forEach(user => {
+	addUserToDash(user)
+	})
 }
 
-function addBookToLibrary(title, author, numOfPages, read) {
-	const book = new Book(title, author, numOfPages, read)
-	myLibrary.push(book);
-
-	// myLibrary.forEach(book => {
-	// 	console.log(book);
-	// })
-
-	console.log(book);
-	console.log('Added to library');
-	render();
-	console.log('rendered');
-	
-	// myLibrary[myLibrary.length - 1]
+function setAdmin(id) {
+	myUsers.filter(user => user.id === id).map(user => user.admin = true)
+	renderAllUsers()
+}
+function checkAdmin(bool){
+	return bool ? "checked" : ""
 }
 
-const table = document.querySelector('table');
 
-function render() {
-	book = 	myLibrary[myLibrary.length - 1]
-	table.innerHTML += `<tr class="bookEntry"><td>${book.title}</td><td>${book.author}</td><td>${book.numOfPages}</td><td>${book.read}</td><td><input id="select" type="checkbox" name="select"></td></tr>`
+
+const Jamie = {
+	id: 101, 
+	name: "jamie",
+	address: {suite: "123", street: "First Pl", city: "Rochester"}, 
+	email: "jamie@gmail.com", 
+	admin: true,
+	hidden: false
 }
 
-addBookToLibrary('Wonder', 'RJ Palacio', '304', 'Read');
-addBookToLibrary('Diary of a Wimpy Kid', 'Jeff Kinney', '254', 'Not Read');
-addBookToLibrary('Lord of the Rings', 'JRR Tolkien', '304', 'Read');
-// render();
-// console.log('rendered');
-// console.log(myLibrary[0].info());
+myUsers.push(Jamie)
+addUserToDash(Jamie);
 
-const addBook = document.querySelector('#addBook');
-const removeBook = document.querySelector('#removeBook');
-const newBookForm = document.querySelector('form');
-const submitNewBook = document.querySelector('#submit')
-const closeFormButton = document.querySelector('#close')
-
-function readStatus() {
-	if(newBookForm[4].checked)
-		return 'Read';
-	else
-		return 'Not Read';
-}
-
-addBook.addEventListener('click', () => {
-	newBookForm.style.display = 'block';
-});
-
-removeBook.addEventListener('click', () => {
-	let updatedTable = table.querySelector('tr').innerHTML;
-	entry = table.querySelectorAll('.bookEntry');
-	
-	
-	entry.forEach((element) => {
-		console.log(element.innerHTML);
-		
-		selectBox = element.querySelector('#select')
-		console.log(selectBox.checked);
-
-		if(!selectBox.checked) {
-			console.log(selectBox);
-			updatedTable += element.outerHTML;
-		}
-	});
-
-	console.log(updatedTable);
-	
-	table.innerHTML = updatedTable;
-});
-
-submitNewBook.addEventListener('click', () => {
-	// console.log(newBookForm[4].value);
-	
-	// console.log(newBookForm[3].checked);
-	
-	addBookToLibrary(newBookForm[1].value, newBookForm[2].value, newBookForm[3].value, readStatus());
-});
-
-closeFormButton.addEventListener('click', () => {
-	newBookForm.style.display = 'none';
-})
