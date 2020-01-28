@@ -89,7 +89,7 @@ function addUserToDash(user){
 				</div>
 			</div>
 			<span>Admin: ${admin} </span>
-			<span> toggle Admin: <input type='checkbox' onchange='setAdmin(${id})' "${admin ? 'checked' : ''}"></span>
+			<span> toggle Admin: <input type='checkbox' onchange='toggleAdmin(${id})' ${admin ? 'checked' : ''}></span>
 			<button onclick='hideUser(${id})'>Hide User</button>
 		</article>
 		`
@@ -119,9 +119,9 @@ function renderAllUsers(){
 	})
 }
 
-function setAdmin(id) {
+function toggleAdmin(id) {
 	return new Promise(function(resolve, reject) {
-		myUsers.filter(user => user.id === id).map(user => user.admin = true);
+		myUsers.filter(user => user.id === id).map(user => user.admin = !user.admin);
 		resolve(true)
 	  })
 	  .then(() => renderAllUsers());

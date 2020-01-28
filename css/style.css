@@ -1,0 +1,1 @@
+.users article{display:inline-block;margin:1rem;padding:1rem;box-shadow:0 0 4px black, 0 0 9px black;transition:transform 300ms;border-radius:1rem}.users article:hover{transform:scale(1.05)}.users img{border-radius:100%;height:125px}.users .flex{display:flex}.users .info{text-align:right;margin:0.5rem}.users .selected{font-size:2rem}
