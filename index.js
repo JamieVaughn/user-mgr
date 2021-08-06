@@ -81,7 +81,7 @@ function addUserToDash(user){
 	output.innerHTML += `
 		<article data-id=${id} class=${hidden ? 'hidden' : admin ? 'admin': ''}>
 			<div class='flex'>
-				<img src='https://api.adorable.io/avatars/125/${name}' alt='picture of ${name}'>
+				<img src='https://ui-avatars.com/api/?name=${name}' alt='picture of ${name}'>
 				<div class='info'>
 					<h1>${name}</h1>
 					<div>${email}</div>
